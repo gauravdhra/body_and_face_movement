@@ -1,0 +1,354 @@
+<html>
+  <body>
+
+    <canvas id="canvas" width="700" height="400" style="position:absolute;z-index:1;"></canvas>
+    
+    <video id="video" autoplay muted="true" position="relative" width="700" height="400"></video>
+
+    <input type="file" id="fileUpload" accept="video/*">
+    <button  id="fileUpload" onclick="playVideo()">PLAY</button>
+        
+    <input type="text" id="standing" >
+   
+   
+    <!-- blazeface model -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script> -->
+
+    <!-- Load TensorFlow.js -->
+    <!-- Load Posenet -->
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <script src="https://unpkg.com/@tensorflow-models/posenet"> </script>
+
+
+
+<!-- Require the peer dependencies of facemesh. -->
+
+ <!-- <script src="http://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+<script src="http://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+<script src="http://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+<script src="http://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>  -->
+
+
+<!-- JQUERY Library. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+
+      var fileupload = $("#fileUpload");
+
+        fileupload.change(function () {
+          video.src = URL.createObjectURL(this.files[0]);
+          video.load();
+          startPoseNet();
+          // startFaceDetect();
+          // startFaceMesh();
+        });
+
+
+           const playVideo = () => {
+             document.getElementById("video").currentTime = 0;
+             document.getElementById("video").play();
+           }
+           const startPoseNet = () => {
+              'use strict';
+              // const TWILIO_DOMAIN = location.host;
+              const ROOM_NAME = 'tf';
+              // const Video = Twilio.Video;
+              let videoRoom, localStream;
+              const ctx = canvas.getContext("2d");
+              const maxPoseDetect = 20;
+              const minConfidence = 0.5;
+              const VIDEO_WIDTH = 700;
+              const VIDEO_HEIGHT = 400;
+              const frameRate = 20;
+
+
+            // This configuration  is for video multiple pose detection 
+             const imageScaleFactor = 0.50;
+             const flipHorizontal = false;
+             const outputStride = 16;
+            //  const outputStride = 32;
+             // get up to 20 poses
+             const maxPoseDetections = 20;
+             // minimum confidence of the root part of a pose
+             const scoreThreshold = 0.5;
+             // minimum distance in pixels between the root parts of poses
+             const nmsRadius = 20;
+             const multiplier = 0.75;
+             const architecture= 'MobileNetV1';
+
+                const intervalID = setInterval(async () => {
+                    try {
+                      estimateMultiplePoses();
+                    } catch (err) {
+                      clearInterval(intervalID)
+                      setErrorMessage(err.message)
+                    }
+                  }, Math.round(1000 / frameRate))
+
+
+              // preview screen
+              // navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+              //   .then(vid => {
+              //     video.srcObject = vid;
+              //     localStream = vid;
+              //     const intervalID = setInterval(async () => {
+              //       try {
+              //         estimateMultiplePoses();
+              //       } catch (err) {
+              //         clearInterval(intervalID)
+              //         setErrorMessage(err.message)
+              //       }
+              //     }, Math.round(1000 / frameRate))
+              //     return () => clearInterval(intervalID)
+              //   });
+              function drawPoint(y, x, r) {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, 2 * Math.PI);
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fill();
+              }
+              function drawKeypoints(keypoints) {
+                for (let i = 0; i < keypoints.length; i++) {
+                  const keypoint = keypoints[i];
+                  console.log(`keypoint in drawkeypoints ${keypoint}`);
+                  const { y, x } = keypoint.position;
+                  drawPoint(y, x, 3);
+                }
+              }
+              function drawSegment(
+                pair1,
+                pair2,
+                color,
+                scale
+              ) {
+                ctx.beginPath();
+                ctx.moveTo(pair1.x * scale, pair1.y * scale);
+                ctx.lineTo(pair2.x * scale, pair2.y * scale);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = color;
+                ctx.stroke();
+              }
+
+              function drawSkeleton(keypoints) {
+                const color = "#FFFFFF";
+                const adjacentKeyPoints = posenet.getAdjacentKeyPoints(
+                  keypoints,
+                  minConfidence
+                );
+
+                adjacentKeyPoints.forEach((keypoint) => {
+                  drawSegment(
+                    keypoint[0].position,
+                    keypoint[1].position,
+                    color,
+                    1,
+                  );
+                });
+              }
+
+              const estimateMultiplePoses = () => {
+                posenet.load({
+                    architecture: architecture,
+                    outputStride: outputStride,
+                    inputResolution: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
+                    multiplier: multiplier
+                  })
+                  .then(function (net) {
+                    console.log("estimateMultiplePoses .... ");
+                    return net.estimateMultiplePoses(video, {
+                      flipHorizontal: flipHorizontal,
+                      maxDetections: maxPoseDetections,
+                      // imageScaleFactor: imageScaleFactor,
+                      // outputStride: outputStride,
+                      scoreThreshold: scoreThreshold,
+                      nmsRadius: nmsRadius
+                    })
+                    // return net.estimateMultiplePoses(
+                    //   video, imageScaleFactor, flipHorizontal, outputStride,
+                    //   maxPoseDetections, scoreThreshold, nmsRadius);
+                    // return net.estimatePoses(video, {
+                    //   decodingMethod: "multi-person",
+                    // });
+                  })
+                  .then(function (poses) {
+                    console.log(`got Poses ${JSON.stringify(poses)}`);
+                    canvas.width = video.width;
+                    canvas.height = video.height;
+                    // canvas.width = VIDEO_WIDTH;
+                    // canvas.height = VIDEO_HEIGHT;
+                    ctx.clearRect(0, 0, video.width, video.height);
+                    ctx.save();
+                    ctx.drawImage(video, 0, 0, video.width, video.height);
+                    ctx.restore();
+                    poses.forEach(({ score, keypoints }) => {
+
+                      let leftShoulder = keypoints[5]['position']
+                      let rightShoulder = keypoints[6]['position']
+                      let leftWrist = keypoints[9]['position']
+                      let rightWrist = keypoints[10]['position']
+
+                      let leftWristDistanceX = Math.abs(leftShoulder['y'] - leftWrist['y']);
+                      let rightWristDistanceY = Math.abs(rightShoulder['y'] - rightWrist['y']);
+
+
+
+                      if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 95 && rightWristDistanceY > 95) {
+                        showStandingPoses()
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
+                      }
+                    });
+                  });
+              };
+
+              // buttons
+              const joinRoomButton = document.getElementById("button-join");
+              const leaveRoomButton = document.getElementById("button-leave");
+              // var site = `https://${TWILIO_DOMAIN}/video-token`;
+              // console.log(`site ${site}`);
+ 
+            };
+            function showStandingPoses(){
+              $('standing').val = 1
+              setTimeout(()=>{
+                $('standing').val = 0
+              },2000)
+            }
+            const participantConnected = (participant) => {
+              console.log(`Participant ${participant.identity} connected'`);
+
+              const div = document.createElement('div');
+              div.id = participant.sid;
+
+              participant.on('trackSubscribed', track => trackSubscribed(div, track));
+              participant.on('trackUnsubscribed', trackUnsubscribed);
+
+              participant.tracks.forEach(publication => {
+                if (publication.isSubscribed) {
+                  trackSubscribed(div, publication.track);
+                }
+              });
+              document.body.appendChild(div);
+              //new div
+            }
+
+            const participantDisconnected = (participant) => {
+              console.log(`Participant ${participant.identity} disconnected.`);
+              document.getElementById(participant.sid).remove();
+            }
+
+            const trackSubscribed = (div, track) => {
+              div.appendChild(track.attach());
+            }
+
+            const trackUnsubscribed = (track) => {
+              track.detach().forEach(element => element.remove());
+            }
+       
+
+          const startFaceDetect = async () => {
+                // Load the model.
+                const model = await blazeface.load();
+
+                // Pass in an image or video to the model. The model returns an array of
+                // bounding boxes, probabilities, and landmarks, one for each detected face.
+
+                const returnTensors = false; // Pass in `true` to get tensors back, rather than values.
+                const predictions = await model.estimateFaces(document.querySelector("video"), returnTensors);
+
+                if (predictions.length > 0) {
+                  /*
+                  `predictions` is an array of objects describing each detected face, for example:
+              
+                  [
+                    {
+                      topLeft: [232.28, 145.26],
+                      bottomRight: [449.75, 308.36],
+                      probability: [0.998],
+                      landmarks: [
+                        [295.13, 177.64], // right eye
+                        [382.32, 175.56], // left eye
+                        [341.18, 205.03], // nose
+                        [345.12, 250.61], // mouth
+                        [252.76, 211.37], // right ear
+                        [431.20, 204.93] // left ear
+                      ]
+                    }
+                  ]
+                  */
+
+                 console.log(`predictions--${predictions}`)
+                  for (let i = 0; i < predictions.length; i++) {
+                    const start = predictions[i].topLeft;
+                    const end = predictions[i].bottomRight;
+                    const size = [end[0] - start[0], end[1] - start[1]];
+                    // Render a rectangle over each detected face.
+                    ctx.fillRect(start[0], start[1], size[0], size[1]);
+                  }
+                }
+              }
+
+             const startFaceMesh = async () => {
+               // Load the MediaPipe facemesh model.
+               const model = await facemesh.load();
+
+               // Pass in a video stream (or an image, canvas, or 3D tensor) to obtain an
+               // array of detected faces from the MediaPipe graph.
+               const predictions = await model.estimateFaces(document.querySelector("video"));
+
+               if (predictions.length > 0) {
+                 /*
+                 `predictions` is an array of objects describing each detected face, for example:
+             
+                 [
+                   {
+                     faceInViewConfidence: 1, // The probability of a face being present.
+                     boundingBox: { // The bounding box surrounding the face.
+                       topLeft: [232.28, 145.26],
+                       bottomRight: [449.75, 308.36],
+                     },
+                     mesh: [ // The 3D coordinates of each facial landmark.
+                       [92.07, 119.49, -17.54],
+                       [91.97, 102.52, -30.54],
+                       ...
+                     ],
+                     scaledMesh: [ // The 3D coordinates of each facial landmark, normalized.
+                       [322.32, 297.58, -17.54],
+                       [322.18, 263.95, -30.54]
+                     ],
+                     annotations: { // Semantic groupings of the `scaledMesh` coordinates.
+                       silhouette: [
+                         [326.19, 124.72, -3.82],
+                         [351.06, 126.30, -3.00],
+                         ...
+                       ],
+                       ...
+                     }
+                   }
+                 ]
+                 */
+
+                 for (let i = 0; i < predictions.length; i++) {
+                   const keypoints = predictions[i].scaledMesh;
+
+                   // Log facial keypoints.
+                   for (let i = 0; i < keypoints.length; i++) {
+                     const [x, y, z] = keypoints[i];
+
+                     console.log(`Keypoint ${i}: [${x}, ${y}, ${z}]`);
+                   }
+                 }
+               }
+              }
+
+
+
+
+
+    </script>
+
+  </body>
+</html>
