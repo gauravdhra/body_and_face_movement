@@ -1,11 +1,11 @@
-var json_output ={
+var json_output = {
     "id": "abcdefg",
-    "current_face_pose":{
-        "top":0,   
-        "left":0,   
-        "right":0,   
-        "front":0,   
-        "down":0,   
+    "current_face_pose": {
+        "top": 0,
+        "left": 0,
+        "right": 0,
+        "front": 0,
+        "down": 0,
     },
     "video_meta": {
         "id": "video_id",
@@ -26,9 +26,9 @@ var json_output ={
         "total_students_detected": 50,
         "summary_statistics": {
             "postures": {
-                "standing": 1,
-                "sitting": 43,
-                "lying": 6,
+                "standing": 0,
+                "sitting": 0,
+                "lying": 0,
                 "walking": 0
             },
             "actions": {

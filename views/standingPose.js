@@ -87,7 +87,7 @@ const startPoseNet = (video, canvas) => {
         ctx.fill();
     }
     function drawKeypoints(keypoints) {
-        for (let i = 0; i < keypoints.length; i++) {
+        for (let i = 0;i < keypoints.length;i++) {
             const keypoint = keypoints[i];
             console.log(`keypoint in drawkeypoints ${keypoint}`);
             const { y, x } = keypoint.position;
@@ -126,6 +126,11 @@ const startPoseNet = (video, canvas) => {
     }
     const showStandingPoses = (totalStandingStudents) => {
         $('#standing_student').val(totalStandingStudents)
+
+        json_output.data.summary_statistics.postures.standing = totalStandingStudents
+        json_output.data.summary_statistics.postures.sitting = json_output.total_students - totalStandingStudents
+
+        $('#realData').text(JSON.stringify(json_output))
         // $('standing').val = 1
         // setTimeout(() => {
         //     $('standing').val = 0
