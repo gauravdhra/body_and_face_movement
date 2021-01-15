@@ -124,6 +124,14 @@ const startPoseNet = (video, canvas) => {
             );
         });
     }
+    const showStudentsRaisingHands = (rasingHandStudents) => {
+        $('#rasing_hands_students').val(rasingHandStudents)
+
+        json_output.data.summary_statistics.actions.hands_raised = rasingHandStudents
+
+        $('#realData').text(JSON.stringify(json_output))
+
+    }
     const showStandingPoses = (totalStandingStudents) => {
         $('#standing_student').val(totalStandingStudents)
 
@@ -171,8 +179,11 @@ const startPoseNet = (video, canvas) => {
                 ctx.drawImage(video, 0, 0, video.width, video.height);
                 ctx.restore();
                 let totalStandingStudents = 0
+                let rasingHandStudents = 0
                 poses.forEach(({ score, keypoints }) => {
 
+                    let leftEye = keypoints[1]['position']
+                    let rightEye = keypoints[2]['position']
                     let leftShoulder = keypoints[5]['position']
                     let rightShoulder = keypoints[6]['position']
                     let leftWrist = keypoints[9]['position']
@@ -180,8 +191,21 @@ const startPoseNet = (video, canvas) => {
 
                     let leftWristDistanceX = Math.abs(leftShoulder['y'] - leftWrist['y']);
                     let rightWristDistanceY = Math.abs(rightShoulder['y'] - rightWrist['y']);
+                   
+                    // Measurement to find raised hands of students/body (wrist's and shoulder's 'Y' position )
+                    let leftWristRaisedDistance = (leftWrist['y'] - leftEye['y']);
+                    let rightWristRaisedDistance = (rightWrist['y'] - rightEye['y']);
 
-
+                    if (Math.sign(rightWristRaisedDistance) === -1) {
+                        rasingHandStudents++
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
+                    }
+                    else if (Math.sign(leftWristRaisedDistance) === -1) {
+                        rasingHandStudents++
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
+                    }
 
                     if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                         totalStandingStudents++
@@ -189,6 +213,7 @@ const startPoseNet = (video, canvas) => {
                         drawSkeleton(keypoints);
                     }
                 });
+                showStudentsRaisingHands(rasingHandStudents);
                 showStandingPoses(totalStandingStudents);
             });
     };
