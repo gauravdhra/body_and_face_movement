@@ -45,7 +45,7 @@
     <div class="row input-field" style="justify-content:center;">
       <input type="file" id="fileUpload" accept="video/*">
       <button class="stopbutton waves-effect waves-light btn" onclick="startDetecting()">Start</button>
-      <button class="stopbutton waves-effect waves-light btn" onclick="stopDrawing()">Stop</button>
+      <button class="stopbutton waves-effect waves-light btn" onclick="stopDetecting()">Stop</button>
       <button class="waves-effect waves-light btn" onclick="playPause()">Play Pause</button>
     </div>
     <div class="row directionPose"   style="display:flex">
@@ -212,6 +212,7 @@
   let collectionOfMaxFaceDirection = []
   let withFaceLandmarks = true;
   let withBoxes = false;
+  let detectionStopped = true;
   let isDetecting = false
   let playing = false
 
@@ -259,6 +260,7 @@
       // console.log("stopDetecting");
       isDetecting = true
       $('#inputVideo').get(0).play()
+      playing = true
       // $('.stopbutton').text("Stop Detecting")
       $('.preloader-wrapper').show(true)
     const videoEl = document.getElementById("inputVideo");
@@ -267,7 +269,7 @@
     startPoseNet(videoEl, canvas);
 
     setTimeout(() => {
-      onPlay($('#inputVideo').get(0))
+      // onPlay($('#inputVideo').get(0))
     }, 1000)
 
     // $.when(
