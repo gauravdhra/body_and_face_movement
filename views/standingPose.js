@@ -84,10 +84,10 @@ const startPoseNet = (video, canvas) => {
     function drawPoint(y, x, r) {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, 2 * Math.PI);
-        // ctx.fillStyle = "#FFFFFF";
-        // ctx.fill();
-        ctx.fillStyle = "red";
-        ctx.fillText(Math.round(y),x,y)
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fill();
+        // ctx.fillStyle = "red";
+        // ctx.fillText(Math.round(y),x,y)
     }
     function drawKeypoints(keypoints) {
         for (let i = 0;i < keypoints.length;i++) {
@@ -226,8 +226,8 @@ const startPoseNet = (video, canvas) => {
 
                     if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                         totalStandingStudents++
-                        // drawKeypoints(keypoints);
-                        // drawSkeleton(keypoints);
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
                     }
                 });
                 showStudentsRaisingHands(rasingHandStudents);
