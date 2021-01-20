@@ -2,41 +2,35 @@
 <html>
 
 <head>
-  <!-- <script src="https://unpkg.com/@tensorflow/tfjs"></script>
-  <script src="https://unpkg.com/@tensorflow-models/posenet"> </script>   -->
+
   <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-  
-  
-  <script src="js/face-api.js"></script>
   <script src="js/commons.js"></script>
+
+
+  <!-- Face API for detecting head movements(focus of students)   -->
+  <script src="js/face-api.js"></script>
   <script src="js/faceDetectionControls.js"></script>
 
 
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/materialize.css">
   
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
   <script type="text/javascript" src="js/VideoFrame-0.2.2.min.js"></script>
   <script src="js/materialize.min.js"></script>
+
+  <!-- JSON Format object for output  -->
   <script src="frontCameraAnalysis.js"></script>
+
+  <!-- Standing ,Raising Hands helper scirpt(s) -->
   <script src="standingPose.js"></script>
 
+   <!-- POSENET Scripts -->
   <script src="js/tfjs.js"></script>
   <script src="js/posenet.js"> </script>
-
-  <!-- POSE detection scripts -->
-  <!-- <script src="js/p5.min.js"></script>
-  <script src="js/p5.dom.min.js"></script>
-  <script src="js/ml5.min.js" type="text/javascript"></script> -->
-  <!-- <script src="pose.js"></script> -->
 </head>
 
 <body>
-  <!-- <div id="navbar"></div> -->
-  <!-- <div class="center-content page-container"> -->
-  <div class="center-content ">
-    <!-- <button onclick="startDrawing()">Start</button>
-    <button onclick="stopDrawing()">Stop</button> -->
+   <div class="center-content ">
     <p id="status">Loading Model...</p>
 
     <div class="progress" id="loader">
@@ -68,20 +62,19 @@
       <input id="maxFocus" value="" type="text" class="bold">
     </div>
     <div style="position: relative" class="margin">
+      <video id="inputVideo"  muted="true" position="relative" width="700" height="400"></video>
+      <canvas id="overlay" width="700" height="400"style="position:absolute;z-index:1;"/>
+    
+    
       <!-- <video id="inputVideo"  alt="Upload Video" controls playsinline>
         <source src="" id="video_here" type="video/mp4">
       </video> -->
-      <video id="inputVideo"  muted="true" position="relative" width="700" height="400"></video>
       <!-- <video src="short.mp4" id="inputVideo" autoplay muted loop playsinline></video> -->
       <!-- <img id="inputVideo" src="bbt1.jpg" style="max-width: 800px;" /> -->
-      <canvas id="overlay" width="700" height="400"style="position:absolute;z-index:1;"/>
       <!-- <canvas id="overlay" width="700" height="400" style="position:absolute;z-index:1;"></canvas> -->
     </div>
     <span></span>
     <div class="row side-by-side">
-      <!-- <div class="row input-field" style="margin-right: 20px;"><button class="stopbutton waves-effect waves-light btn" onclick="stopDetecting()">Start Detecting</button>
-        <button class="waves-effect waves-light btn" onclick="playPause()">Play Pause</button>
-      </div> -->
       <div class="preloader-wrapper big active">
         <div class="spinner-layer spinner-blue-only">
           <div class="circle-clipper left">
@@ -272,25 +265,6 @@
       onPlay($('#inputVideo').get(0))
     }, 1000)
 
-    // $.when(
-    //   $.getScript('js/face-api.js'),
-    //   $.getScript('js/commons.js'),
-    //   $.getScript('js/faceDetectionControls.js'),
-    //   $.Deferred(function (deferred) {
-    //     $(deferred.resolve);
-    //   })
-    // ).done(function () {
-
-    //   renderNavBar('#navbar', 'video_face_tracking')
-    //   initFaceDetectionControls()
-    //   countFrames()
-    //   run()
-
-
-    //   setTimeout(() => {
-    //     onPlay($('#inputVideo').get(0))
-    //   }, 1000)
-    // })
   }
 
   function  resetHeads(){
@@ -328,19 +302,12 @@
           { direction: "front", focuses: frontHeads }, 
           { direction: "down", focuses: downHeads }
         ];
-        // let mostRepeatingFaceDirection =  {
-        //     left:{repeatingNumber:0},
-        //     right:{repeatingNumber:0},
-        //     front:{repeatingNumber:0},
-        //     top:{repeatingNumber:0},
-        //     down:{repeatingNumber:0}
-        //   }
+
         totalFaceCountList.sort(compareToSort);
         if(totalFaceCountList[0]['direction'] != "down"){
           maxFocusData.maxCount = totalFaceCountList[0]['focuses'];
           maxFocusData.maxDirection = totalFaceCountList[0]['direction']
           collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-          // mostRepeatingFaceDirection[totalFaceCountList[0]['direction']].repeatingNumber
         }
 
         if(totalFaceCountList[1]['direction'] != "down"){
@@ -348,36 +315,6 @@
           maxFocusData.secondMaxDirection = totalFaceCountList[1]['direction']
           collectionOfMaxFaceDirection.push(maxFocusData.secondMaxDirection);
         }
-
-        // if(frontHeads == maxNumber){
-        //   maxFocusData.maxCount = maxNumber;
-        //   maxFocusData.maxDirection = "front";
-        //   collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-        // }
-
-        // else if(topHeads == maxNumber){
-        //   maxFocusData.maxCount = maxNumber;
-        //   maxFocusData.maxDirection = "top";
-        //   collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-        // }
-
-        // else if(leftHeads == maxNumber){
-        //   maxFocusData.maxCount = maxNumber;
-        //   maxFocusData.maxDirection = "left";
-        //   collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-        // }
-
-        // else if(rightHeads == maxNumber){ 
-        //   maxFocusData.maxCount = maxNumber;
-        //   maxFocusData.maxDirection = "right";
-        //   collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-        // }
-
-        // else if(downHeads == maxNumber){
-        //   maxFocusData.maxCount = maxNumber;
-        //   maxFocusData.maxDirection = "down";
-        //   collectionOfMaxFaceDirection.push(maxFocusData.maxDirection);
-        // }
 
         
   }
@@ -470,29 +407,11 @@
         var eye_right = getMeanPosition(results[j].landmarks.getRightEye());
         var eye_left = getMeanPosition(results[j].landmarks.getLeftEye());
         var mouth = getMeanPosition(results[j].landmarks.getMouth());
-        // console.log("results[j].landmarks-", results[j].landmarks)
-        // console.log("outlinejaw:--", results[j].landmarks.getJawOutline())
-        // var left_ear = getMeanPosition(results[j].landmarks.getLeftEar());
-        // console.log("left_ear--", left_ear);
-        
-        
-        // let jawOutline = results[j].landmarks.getJawOutline();
-        // let leftEar = [jawOutline[0]['_x'],jawOutline[0]['_y']];
-        // let rightEar = [jawOutline[16]['_x'],jawOutline[16]['_y']];
-        // let nose = getMeanPosition(results[j].landmarks.getNose());
-
-        // let leftToNoseDistance = nose[0] - leftEar[0];
-        // let rightToNoseDistance = rightEar[0] - nose[0];
-
-        // console.log("left---------------",(leftToNoseDistance- rightToNoseDistance))
-        // console.log("right---------------",rightToNoseDistance- leftToNoseDistance)
-        // console.log("nose--",nose)
 
         var a = eye_right[0] - mouth[0];
         var b = eye_right[1] - mouth[1]
         var rt_eye_to_mouth = Math.sqrt(a * a + b * b);
 
-        // console.log("eye_right0",eye_right[0])
 
         var cpx = (eye_right[0] + eye_left[0]) / 2;
         var cpy = (eye_right[1] + eye_left[1]) / 2;
@@ -508,15 +427,6 @@
         var lf_eye_to_mouth = Math.sqrt(a * a + b * b);
 
         let eyeGap = eye_right[0] - eye_left[0]
-        // if (distance >= 4.9 && eyeGap >= 10) {
-        //   // console.log(eyeGap+"-------",eye_left[0],"0_0", eye_right[0])
-        //   // console.log("********", j, "*****score**>>*"+ results[j].detection._score+"****distance***>>**********" + distance);
-        //   // console.log(results[j])
-        //   // results[j].detection._score = distance
-        //   results[j].distance = distance
-        //   dataToDraw.push(results[j])
-        // }
-
 
         // LEFT & RIGHT face rotation angle detection parameters
         let jawOutline = results[j].landmarks.getJawOutline();
@@ -537,14 +447,6 @@
 
         let lookingUp = Math.sign(leftEyeBrow[1] - rightEar[1]) == 1 
 
-        // if (lookingUp)
-        //   console.log("-----UP----->>-" + rightEar[1]+ "---" + leftEyeBrow[1])
-        // if (!lookingUp)
-        //   console.log("------DOWN----->>-" + rightEar[1]+ "---" + leftEyeBrow[1])
-        // let noseToDistance = nose[0] - leftEar[0];
-        // let rightToNoseDistance = rightEar[0] - nose[0];
-        // let lookingRight = Math.sign(leftToNoseDistance - rightToNoseDistance) == 1
-        // let lookingLeft = Math.sign(rightToNoseDistance - leftToNoseDistance) == 1
         var rx = (jaw - mouth[1]) / results[j].detection.box.height + 0.5;
         var ry = (eye_left[0] + (eye_right[0] - eye_left[0]) / 2 - nose[0]) /
           results[j].detection.box.width;
@@ -579,41 +481,6 @@
 
         results[j]['direction'] = state
         dataToDraw.push(results[j])
-        // if (lookingLeft && (rightToNoseDistance - leftToNoseDistance) >= 20 ) {
-        //   results[j]['direction'] = "left"
-        //   dataToDraw.push(results[j])
-        // }
-        // else if(lookingRight && (leftToNoseDistance - rightToNoseDistance) >= 20 ) {
-        //   results[j]['direction'] = "right"
-        //   dataToDraw.push(results[j])
-        // }
-        // else 
-        // if (lookingUp &&  (leftEyeBrow[1] - rightEar[1]) >= -2) {
-        //             console.log(lookingUp+"-----UP----->>-"+leftEyeBrow[1] + "---"+  rightEar[1])
-
-        //   results[j]['direction'] = "up"
-        //   dataToDraw.push(results[j])
-        // }
-        // else if (distance >= 4.5 &&  results[j].detection._score >= 0.65 && !lookingUp && (rightEyeBrow[1] - rightEar[1]) <= -9 ) {
-        // else if (distance >= 4.5 &&  results[j].detection._score >= 0.65 ) {
-        //   // console.log("front--",(rightEyeBrow[1]),"----",rightEar[1])
-        //   // console.log("front--",(rightEyeBrow[1] - rightEar[1]))
-        //   results[j]['direction'] = "front"
-        //   dataToDraw.push(results[j])
-        // }
-        // else if(!lookingUp && (leftEyeBrow[1] - rightEar[1]) <= -2){
-        //   console.log(lookingUp + "-----DOWN----->>-" + leftEyeBrow[1] + "---" + rightEar[1])
-        //   // console.log("down--",(rightEyeBrow[1]),"----",rightEar[1])
-        //   // console.log("down--",(rightEyeBrow[1] - rightEar[1]))
-        //   results[j]['direction'] = "down"
-        //   dataToDraw.push(results[j])
-        // }   
-        // else{
-        //           //  console.log("down--", (rightEyeBrow[1]), "----", rightEar[1])
-        //   // console.log("down--", (rightEyeBrow[1] - rightEar[1]))
-        //   results[j]['direction'] = "other"
-        //   dataToDraw.push(results[j])
-        // }     
       }
 
     }
@@ -662,8 +529,6 @@
 
   async function drawFaceOnCanvas(resizedResults, canvas) {
 
-    // console.log(resizedResults)
-
 
     // This single statement can draw face landmarks points
     faceapi.draw.drawFaceLandmarks(canvas, resizedResults)
@@ -701,117 +566,7 @@
           lineWidth: 2
         }     
       }
-      // if (resizedResults[k].direction == "left") {
-
-      //   var drawOptions = {
-      //     boxColor: "skyblue",
-      //     label: "<<----",
-      //     lineWidth: 1
-      //   }
-      // }
-      // // else if(resizedResults[k].detection._score >= 0.70){
-      // else if (resizedResults[k].direction == "right") {
-      //   var drawOptions = {
-      //     boxColor: "darkblue",
-      //     label: "---->>",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "front") {
-      //   var drawOptions = {
-      //     boxColor: "green",
-      //     label: "FRONT",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "down") {
-      //   var drawOptions = {
-      //     boxColor: "red",
-      //     label: "DOWN",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "top") {
-      //   var drawOptions = {
-      //     boxColor: "black",
-      //     label: "TOP",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "other") {
-      //   var drawOptions = {
-      //     boxColor: "black",
-      //     label: "OTHER",
-      //     lineWidth: 2
-      //   }
-      // }
-
-
-
-
-      // if(resizedResults[k].direction == maxFocusCount.direction){
-      //   var drawOptions = {
-      //     boxColor: "green",
-      //     label: "FRONT",
-      //     lineWidth: 2
-      //   }
-      // }
-      // if (resizedResults[k].direction == "left" && maxFocusCount.direction != "left") {
-      //   var drawOptions = {
-      //     // boxColor: "skyblue",
-      //     boxColor: "red",
-      //     // label: "LEFT",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "right" && maxFocusCount.direction != "right") {
-      //   var drawOptions = {
-      //     // boxColor: "darkblue",
-      //     boxColor: "red",
-      //     // label: "RIGHT",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "front" && maxFocusCount.direction != "front") {
-      //   var drawOptions = {
-      //     // boxColor: "green",
-      //     boxColor: "red",
-      //     // label: "FRONT",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "down" && maxFocusCount.direction != "down") {
-      //   var drawOptions = {
-      //     // boxColor: "red",
-      //     boxColor: "red",
-      //     // label: "DOWN",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "top" && maxFocusCount.direction != "top") {
-      //   var drawOptions = {
-      //     // boxColor: "black",
-      //     boxColor: "red",
-      //     // label: "TOP",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-      // else if (resizedResults[k].direction == "other" && maxFocusCount.direction != "other") {
-      //   var drawOptions = {
-      //     // boxColor: "black",
-      //     boxColor: "red",
-      //     // label: "OTHER",
-      //     label: " ",
-      //     lineWidth: 2
-      //   }
-      // }
-    
-    
+   
 
       const drawBox = new faceapi.draw.DrawBox(box, drawOptions)
       drawBox.draw(document.getElementById('overlay'))

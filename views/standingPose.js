@@ -1,14 +1,3 @@
-// var jQueryScript = document.createElement('script');
-// jQueryScript.setAttribute('src', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js');
-// document.head.appendChild(jQueryScript);
-// var  jQueryScript2 = document.createElement('script');
-// jQueryScript.setAttribute('src', 'https://unpkg.com/@tensorflow/tfjs');
-// document.head.appendChild(jQueryScript2);
-//  var jQueryScript3 = document.createElement('script');
-// jQueryScript.setAttribute('src', 'https://unpkg.com/@tensorflow-models/posenet');
-// document.head.appendChild(jQueryScript3);
-
-
 // const video = document.getElementById("video");
 // const canvas = document.getElementById("canvas");
 
@@ -66,21 +55,6 @@ const startPoseNet = (video, canvas) => {
     }, Math.round(1000 / frameRate))
 
 
-    // preview screen
-    // navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    //   .then(vid => {
-    //     video.srcObject = vid;
-    //     localStream = vid;
-    //     const intervalID = setInterval(async () => {
-    //       try {
-    //         estimateMultiplePoses();
-    //       } catch (err) {
-    //         clearInterval(intervalID)
-    //         setErrorMessage(err.message)
-    //       }
-    //     }, Math.round(1000 / frameRate))
-    //     return () => clearInterval(intervalID)
-    //   });
     function drawPoint(y, x, r) {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, 2 * Math.PI);
@@ -97,20 +71,7 @@ const startPoseNet = (video, canvas) => {
             drawPoint(y, x, 3);
         }
     }
-    function drawRaisingHands(keypoints) {
-        let leftEye = keypoints[1]['position']
-        let rightEye = keypoints[2]['position']
 
-        let leftWrist = keypoints[9]['position']
-        let rightWrist = keypoints[10]['position']
-
-        for (let i = 0;i < keypoints.length;i++) {
-            const keypoint = keypoints[i];
-            // console.log(`keypoint in drawkeypoints ${keypoint}`);
-            const { y, x } = keypoint.position;
-            drawPoint(y, x, 3);
-        }
-    }
     function drawSegment(
         pair1,
         pair2,
@@ -141,7 +102,41 @@ const startPoseNet = (video, canvas) => {
             );
         });
     }
-    const showStudentsRaisingHands = (rasingHandStudents) => {
+
+
+
+    function drawEachBodyKeypoints(keypoints) {
+        for (let i = 0;i < keypoints.length;i++) {
+            const keypoint = keypoints[i];
+            // console.log(`keypoint in drawkeypoints ${keypoint}`);
+            const { y, x } = keypoint.position;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
+            ctx.fillStyle = "red";
+            ctx.fill();
+        }
+    }
+
+    function drawEachBodySkeleton(keypoints) {
+        const color = "red";
+        const adjacentKeyPoints = posenet.getAdjacentKeyPoints(
+            keypoints,
+            minConfidence
+        );
+
+        adjacentKeyPoints.forEach((keypoint) => {
+            drawSegment(
+                keypoint[0].position,
+                keypoint[1].position,
+                color,
+                1,
+            );
+        });
+    }
+
+
+    const countStudentsRaisingHands = (rasingHandStudents) => {
         $('#rasing_hands_students').val(rasingHandStudents)
 
         json_output.data.summary_statistics.actions.hands_raised = rasingHandStudents
@@ -149,17 +144,14 @@ const startPoseNet = (video, canvas) => {
         $('#realData').text(JSON.stringify(json_output))
 
     }
-    const showStandingPoses = (totalStandingStudents) => {
+    const countStandingPoses = (totalStandingStudents) => {
         $('#standing_student').val(totalStandingStudents)
 
         json_output.data.summary_statistics.postures.standing = totalStandingStudents
         json_output.data.summary_statistics.postures.sitting = json_output.total_students - totalStandingStudents
 
         $('#realData').text(JSON.stringify(json_output))
-        // $('standing').val = 1
-        // setTimeout(() => {
-        //     $('standing').val = 0
-        // }, 2000)
+
     }
     const estimateMultiplePoses = () => {
         posenet.load({
@@ -178,12 +170,7 @@ const startPoseNet = (video, canvas) => {
                     scoreThreshold: scoreThreshold,
                     nmsRadius: nmsRadius
                 })
-                // return net.estimateMultiplePoses(
-                //   video, imageScaleFactor, flipHorizontal, outputStride,
-                //   maxPoseDetections, scoreThreshold, nmsRadius);
-                // return net.estimatePoses(video, {
-                //   decodingMethod: "multi-person",
-                // });
+
             })
             .then(function (poses) {
                 // console.log(`got Poses ${JSON.stringify(poses)}`);
@@ -193,8 +180,8 @@ const startPoseNet = (video, canvas) => {
                 // canvas.height = VIDEO_HEIGHT;
                 ctx.clearRect(0, 0, video.width, video.height);
                 ctx.save();
-                ctx.drawImage(video, 0, 0, video.width, video.height);
-                ctx.restore();
+                // ctx.drawImage(video, 0, 0, video.width, video.height);
+                // ctx.restore();
                 let totalStandingStudents = 0
                 let rasingHandStudents = 0
                 poses.forEach(({ score, keypoints }) => {
@@ -229,16 +216,16 @@ const startPoseNet = (video, canvas) => {
                         drawKeypoints(keypoints);
                         drawSkeleton(keypoints);
                     }
+                    else {
+                        drawEachBodyKeypoints(keypoints);
+                        drawEachBodySkeleton(keypoints);
+                    }
+
                 });
-                showStudentsRaisingHands(rasingHandStudents);
-                showStandingPoses(totalStandingStudents);
+                countStudentsRaisingHands(rasingHandStudents);
+                countStandingPoses(totalStandingStudents);
             });
     };
 
-    // buttons
-    const joinRoomButton = document.getElementById("button-join");
-    const leaveRoomButton = document.getElementById("button-leave");
-    // var site = `https://${TWILIO_DOMAIN}/video-token`;
-    // console.log(`site ${site}`);
 
 };
