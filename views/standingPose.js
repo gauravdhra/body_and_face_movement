@@ -24,7 +24,7 @@ const startPoseNet = (video, canvas) => {
     let videoRoom, localStream;
     const ctx = canvas.getContext("2d");
     const maxPoseDetect = 20;
-    const minConfidence = 0.5;
+    const minConfidence = 0.7; // 0.5
     const VIDEO_WIDTH = 700;
     const VIDEO_HEIGHT = 400;
     const frameRate = 20;
@@ -33,12 +33,12 @@ const startPoseNet = (video, canvas) => {
     // This configuration  is for video multiple pose detection 
     const imageScaleFactor = 0.50;
     const flipHorizontal = false;
-    const outputStride = 16;
+    const outputStride = 8; // 16
     //  const outputStride = 32;
     // get up to 20 poses
     const maxPoseDetections = 20;
     // minimum confidence of the root part of a pose
-    const scoreThreshold = 0.5;
+    const scoreThreshold = 0.5; 
     // minimum distance in pixels between the root parts of poses
     const nmsRadius = 20;
     const multiplier = 0.75;
@@ -154,7 +154,7 @@ const startPoseNet = (video, canvas) => {
 
     }
     const estimateMultiplePoses = () => {
-        posenet.load({
+            posenet.load({
             architecture: architecture,
             outputStride: outputStride,
             inputResolution: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
@@ -190,6 +190,10 @@ const startPoseNet = (video, canvas) => {
                     let rightEye = keypoints[2]['position']
                     let leftShoulder = keypoints[5]['position']
                     let rightShoulder = keypoints[6]['position']
+                    
+                    let leftElbow = keypoints[7]['position']
+                    let rightElbow = keypoints[8]['position']
+                    
                     let leftWrist = keypoints[9]['position']
                     let rightWrist = keypoints[10]['position']
 
@@ -197,15 +201,17 @@ const startPoseNet = (video, canvas) => {
                     let rightWristDistanceY = Math.abs(rightShoulder['y'] - rightWrist['y']);
                    
                     // Measurement to find raised hands of students/body (wrist's and shoulder's 'Y' position )
-                    let leftWristRaisedDistance = (leftWrist['y'] - leftEye['y']);
-                    let rightWristRaisedDistance = (rightWrist['y'] - rightEye['y']);
+                    let leftWristRaisedDistance = (leftShoulder['y'] - leftWrist['y']);
+                    let rightWristRaisedDistance = (rightShoulder['y'] - rightWrist['y'])
+                    console.log(leftWristRaisedDistance + " ****** " + rightWristRaisedDistance)
 
-                    if (Math.sign(rightWristRaisedDistance) === -1) {
+                    
+                    if (Math.sign(rightWristRaisedDistance) == 1) {
                         rasingHandStudents++
                         drawKeypoints(keypoints);
                         drawSkeleton(keypoints);
                     }
-                    else if (Math.sign(leftWristRaisedDistance) === -1) {
+                    else if (Math.sign(leftWristRaisedDistance) == 1) {
                         rasingHandStudents++
                         drawKeypoints(keypoints);
                         drawSkeleton(keypoints);
@@ -213,12 +219,12 @@ const startPoseNet = (video, canvas) => {
 
                     if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                         totalStandingStudents++
-                        drawKeypoints(keypoints);
-                        drawSkeleton(keypoints);
+                        // drawKeypoints(keypoints);
+                        // drawSkeleton(keypoints);
                     }
                     else {
-                        drawEachBodyKeypoints(keypoints);
-                        drawEachBodySkeleton(keypoints);
+                        // drawEachBodyKeypoints(keypoints);
+                        // drawEachBodySkeleton(keypoints);
                     }
 
                 });
