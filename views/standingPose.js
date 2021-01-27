@@ -219,12 +219,12 @@ const startPoseNet = (video, canvas) => {
 
                     if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                         totalStandingStudents++
-                        // drawKeypoints(keypoints);
-                        // drawSkeleton(keypoints);
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
                     }
                     else {
-                        // drawEachBodyKeypoints(keypoints);
-                        // drawEachBodySkeleton(keypoints);
+                        drawEachBodyKeypoints(keypoints);
+                        drawEachBodySkeleton(keypoints);
                     }
 
                 });
