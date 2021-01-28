@@ -178,9 +178,9 @@ const startPoseNet = (video, canvas) => {
                 canvas.height = video.height;
                 // canvas.width = VIDEO_WIDTH;
                 // canvas.height = VIDEO_HEIGHT;
-                ctx.clearRect(0, 0, video.width, video.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.save();
-                // ctx.drawImage(video, 0, 0, video.width, video.height);
+                // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 // ctx.restore();
                 let totalStandingStudents = 0
                 let rasingHandStudents = 0
@@ -213,40 +213,44 @@ const startPoseNet = (video, canvas) => {
                     let rightWristRaisedDistance = (rightShoulder['y'] - rightWrist['y'])
                     console.log(leftWristRaisedDistance + " ****** " + rightWristRaisedDistance)
 
-                    // if (Math.sign(rightWristRaisedDistance) == 1) {
-                    //     rasingHandStudents++
-                    //     drawKeypoints(keypoints);
-                    //     drawSkeleton(keypoints);
-                    // }
-                    // else if (Math.sign(leftWristRaisedDistance) == 1) {
-                    //     rasingHandStudents++
-                    //     drawKeypoints(keypoints);
-                    //     drawSkeleton(keypoints);
-                    // }
-
-                    if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
-                        totalStandingStudents++
+                    if (Math.sign(rightWristRaisedDistance) == 1) {
+                        rasingHandStudents++
                         drawKeypoints(keypoints);
                         drawSkeleton(keypoints);
                     }
-                    // if (
-                    //     score >= minConfidence &&
-                    //     // (leftWristDistanceX < 250 || rightWristDistanceY < 250)
-                    //     //  &&
-                    //     (leftWristDistanceX > 40 || rightWristDistanceY > 40)
-                    //      &&
-                    //     // (leftHIPDistanceY < 180 || rightHIPDistanceY < 180)
-                    //     // &&
-                    //     (leftHIPDistanceY > 40 || rightHIPDistanceY > 40)
-                    // ) {
+                    else if (Math.sign(leftWristRaisedDistance) == 1) {
+                        rasingHandStudents++
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
+                    }
+
+                    // if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                     //     totalStandingStudents++
                     //     drawKeypoints(keypoints);
                     //     drawSkeleton(keypoints);
                     // }
-                    // else {
-                    //     drawEachBodyKeypoints(keypoints);
-                    //     drawEachBodySkeleton(keypoints);
-                    // }
+                    if (
+                        score >= minConfidence &&
+                        (
+                            (leftWristDistanceX < 250 || rightWristDistanceY < 250)
+                            &&
+                            (leftWristDistanceX > 90 || rightWristDistanceY > 90)
+                        )
+                        ||
+                        (
+                            (leftHIPDistanceY < 250 || rightHIPDistanceY < 250)
+                            &&
+                            (leftHIPDistanceY > 90 || rightHIPDistanceY > 90)
+                        )
+                    ) {
+                        totalStandingStudents++
+                        drawKeypoints(keypoints);
+                        drawSkeleton(keypoints);
+                    }
+                    else {
+                        drawEachBodyKeypoints(keypoints);
+                        drawEachBodySkeleton(keypoints);
+                    }
 
                 });
                 countStudentsRaisingHands(rasingHandStudents);
