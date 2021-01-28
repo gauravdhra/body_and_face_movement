@@ -213,16 +213,16 @@ const startPoseNet = (video, canvas) => {
                     let rightWristRaisedDistance = (rightShoulder['y'] - rightWrist['y'])
                     console.log(leftWristRaisedDistance + " ****** " + rightWristRaisedDistance)
 
-                    if (Math.sign(rightWristRaisedDistance) == 1) {
-                        rasingHandStudents++
-                        drawKeypoints(keypoints);
-                        drawSkeleton(keypoints);
-                    }
-                    else if (Math.sign(leftWristRaisedDistance) == 1) {
-                        rasingHandStudents++
-                        drawKeypoints(keypoints);
-                        drawSkeleton(keypoints);
-                    }
+                    // if (Math.sign(rightWristRaisedDistance) == 1) {
+                    //     rasingHandStudents++
+                    //     drawKeypoints(keypoints);
+                    //     drawSkeleton(keypoints);
+                    // }
+                    // else if (Math.sign(leftWristRaisedDistance) == 1) {
+                    //     rasingHandStudents++
+                    //     drawKeypoints(keypoints);
+                    //     drawSkeleton(keypoints);
+                    // }
 
                     // if (score >= minConfidence && leftWristDistanceX < 250 && rightWristDistanceY < 250 && leftWristDistanceX > 80 && rightWristDistanceY > 80) {
                     //     totalStandingStudents++
@@ -247,10 +247,10 @@ const startPoseNet = (video, canvas) => {
                         drawKeypoints(keypoints);
                         drawSkeleton(keypoints);
                     }
-                    else {
-                        drawEachBodyKeypoints(keypoints);
-                        drawEachBodySkeleton(keypoints);
-                    }
+                    // else {
+                    //     drawEachBodyKeypoints(keypoints);
+                    //     drawEachBodySkeleton(keypoints);
+                    // }
 
                 });
                 countStudentsRaisingHands(rasingHandStudents);
