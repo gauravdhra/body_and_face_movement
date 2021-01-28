@@ -33,7 +33,7 @@ const startPoseNet = (video, canvas) => {
     // This configuration  is for video multiple pose detection 
     const imageScaleFactor = 0.50;
     const flipHorizontal = false;
-    const outputStride = 8; // 16
+    const outputStride = 16; // 16
     //  const outputStride = 32;
     // get up to 20 poses
     const maxPoseDetections = 20;
@@ -178,9 +178,9 @@ const startPoseNet = (video, canvas) => {
                 canvas.height = video.height;
                 // canvas.width = VIDEO_WIDTH;
                 // canvas.height = VIDEO_HEIGHT;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, video.width, video.height);
                 ctx.save();
-                // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                // ctx.drawImage(video, 0, 0, video.width, video.height);
                 // ctx.restore();
                 let totalStandingStudents = 0
                 let rasingHandStudents = 0
